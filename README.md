@@ -1,5 +1,6 @@
 # Environment Module
 
+![tests](https://github.com/dracory/env/workflows/tests/badge.svg)
 [![Go Reference](https://pkg.go.dev/badge/github.com/dracory/env.svg)](https://pkg.go.dev/github.com/dracory/env)
 [![Go Report Card](https://goreportcard.com/badge/github.com/dracory/env)](https://goreportcard.com/report/github.com/dracory/env)
 
