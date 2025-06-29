@@ -24,6 +24,8 @@ A Go module for managing environment variables with support for secure environme
 - `Must(key string) string` - Get a required environment variable. Panics if the variable is not set.
 - `Get(key, defaultValue string) string` - Get environment variable with default value.
 - `Set(key, value string) error` - Set an environment variable.
+- `Bool(key string) bool` - Get a boolean environment variable. Returns false if not set or invalid.
+- `BoolDefault(key string, defaultValue bool) bool` - Get a boolean environment variable with a default value.
 
 ### Advanced Functions
 
