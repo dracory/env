@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestInitialize(t *testing.T) {
+func TestLoad(t *testing.T) {
 	// Create a temporary .env file
 	tempFile, err := os.CreateTemp("", "test.env")
 	if err != nil {
@@ -21,7 +21,7 @@ func TestInitialize(t *testing.T) {
 	}
 
 	// Call the EnvInitialize function
-	Initialize(tempFile.Name())
+	Load(tempFile.Name())
 
 	// Assert that the environment variable was loaded
 	if os.Getenv("TEST_VAR") != "test_value" {

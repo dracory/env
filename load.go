@@ -7,7 +7,7 @@ import (
 )
 
 // Initialize initializes the environment variables
-func Initialize(envFilePath ...string) {
+func Load(envFilePath ...string) {
 	paths := []string{".env"}
 
 	paths = append(paths, envFilePath...)

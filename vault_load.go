@@ -10,7 +10,7 @@ import (
 // EncInitialize initializes environment variables from a vault file or content using the provided password.
 // It takes an options struct containing the password and either a vault file path or vault content.
 // It returns an error if the initialization fails.
-func VaultLoad(options struct {
+func LoadVault(options struct {
 	Password      string
 	VaultFilePath string
 	VaultContent  string

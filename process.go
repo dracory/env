@@ -2,20 +2,10 @@ package env
 
 import (
 	"encoding/base64"
-	"os"
 	"strings"
 
 	"github.com/gouniverse/envenc"
 )
-
-// Env returns the value for an environment key
-func Value(key string) string {
-	value := os.Getenv(key)
-
-	valueProcessed := envProcess(value)
-
-	return valueProcessed
-}
 
 func envProcess(value string) string {
 	valueTrimmed := strings.TrimSpace(value)

@@ -7,7 +7,7 @@ import (
 	"github.com/gouniverse/envenc"
 )
 
-func TestVaultLoad(t *testing.T) {
+func TestLoadVault(t *testing.T) {
 	password := "password%%1234567890"
 
 	// Create a temporary .vault file, so that we can use the name later
@@ -39,7 +39,7 @@ func TestVaultLoad(t *testing.T) {
 	}
 
 	// Call the EnvInitialize function
-	VaultLoad(struct {
+	LoadVault(struct {
 		Password      string
 		VaultFilePath string
 		VaultContent  string

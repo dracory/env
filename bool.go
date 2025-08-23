@@ -1,71 +1,96 @@
 package env
 
 import (
+	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 )
 
-// Bool returns the value for an environment key
-//
-// Any of the following values are considered true: "true", "True", "TRUE", "T", "t", "1"
-// Any of the following values are considered false: "false", "False", "FALSE", "F", "f", "0"
-// Any other value returns the default false.
-//
-// Parameters:
-//   - key: The environment key
-//
-// Returns:
-//   - The value for the environment key, false if not set
-func Bool(key string) bool {
-	return getEnvBool(key, false)
+// Precompute truthy/falsy token sets from constants in constants.go
+var (
+	trueSet  map[string]struct{}
+	falseSet map[string]struct{}
+	// Strict numeric pattern: optional sign, digits with optional decimal, optional exponent
+	numericRe = regexp.MustCompile(`^[+-]?((\d+\.?\d*)|(\.\d+))([eE][+-]?\d+)?$`)
+)
+
+func init() {
+	trueSet = make(map[string]struct{})
+	for _, v := range strings.Split(TrueValues, ",") {
+		v = strings.TrimSpace(v)
+		if v != "" {
+			trueSet[v] = struct{}{}
+		}
+	}
+	falseSet = make(map[string]struct{})
+	for _, v := range strings.Split(FalseValues, ",") {
+		v = strings.TrimSpace(v)
+		if v != "" {
+			falseSet[v] = struct{}{}
+		}
+	}
 }
 
-// BoolDefault returns the value for an environment key with a default value
-//
-// Any of the following values are considered true: "true", "True", "TRUE", "T", "t", "1"
-// Any of the following values are considered false: "false", "False", "FALSE", "F", "f", "0"
-// Any other value returns the default value.
-//
-// Parameters:
-//   - key: The environment key
-//   - defaultValue: The default value
-//
-// Returns:
-//   - The value for the environment key
-func BoolDefault(key string, defaultValue bool) bool {
-	return getEnvBool(key, defaultValue)
+// GetBool retrieves the boolean value of an environment variable.
+// It returns false if the key is not found or the value is not a valid boolean.
+func GetBool(key string) bool {
+	value, err := GetBoolOrError(key)
+	if err != nil {
+		return false
+	}
+	return value
 }
 
-// getEnvBool returns the value for an environment key as a boolean, or the default value if not set
-//
-// Any of the following values are considered true: "true", "True", "TRUE", "T", "t", "1", "yes", "Yes", "YES"
-// Any of the following values are considered false: "false", "False", "FALSE", "F", "f", "0", "no", "No", "NO"
-// Any other value returns the default value.
-//
-// This function handles base64 and obfuscated prefixes.
-//
-// Parameters:
-//   - key: The environment key
-//   - defaultValue: The default value
-//
-// Returns:
-//   - The value for the environment key
-func getEnvBool(key string, defaultValue bool) bool {
-	valueStr := Value(key)
-
-	if valueStr == "" {
+// GetBoolOrDefault retrieves the boolean value of an environment variable with a default.
+func GetBoolOrDefault(key string, defaultValue bool) bool {
+	value, err := GetBoolOrError(key)
+	if err != nil {
 		return defaultValue
 	}
+	return value
+}
 
-	if strings.ToLower(valueStr) == "yes" {
-		return true
+// GetBoolOrError retrieves the boolean value of an environment variable,
+// returning an error if the key is not found or the value is not a valid boolean.
+func GetBoolOrError(key string) (bool, error) {
+	valueStr := strings.TrimSpace(GetString(key))
+	if valueStr == "" {
+		return false, fmt.Errorf("environment variable '%s' not found", key)
+	}
+
+	// First, honor the explicit truthy/falsy token lists from constants.go
+	if _, ok := trueSet[valueStr]; ok {
+		return true, nil
+	}
+	if _, ok := falseSet[valueStr]; ok {
+		return false, nil
+	}
+
+	// Next, handle numeric values according to the documented rules in constants.go:
+	// any positive number => true; zero or any negative number => false
+	if numericRe.MatchString(valueStr) {
+		if n, errNum := strconv.ParseFloat(valueStr, 64); errNum == nil {
+			if n > 0 {
+				return true, nil
+			}
+			return false, nil
+		}
 	}
 
 	value, err := strconv.ParseBool(valueStr)
 	if err != nil {
-		// Return the default value if the value can't be parsed as a boolean
-		return defaultValue
+		return false, fmt.Errorf("environment variable '%s' with value '%s' cannot be parsed as a boolean", key, valueStr)
 	}
+	return value, nil
+}
 
+// GetBoolOrPanic retrieves the boolean value of an environment variable,
+// panicking if not set or on parsing error.
+func GetBoolOrPanic(key string) bool {
+	value, err := GetBoolOrError(key)
+	if err != nil {
+		panic(err)
+	}
 	return value
 }
