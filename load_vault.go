@@ -7,9 +7,17 @@ import (
 	"github.com/gouniverse/envenc"
 )
 
-// EncInitialize initializes environment variables from a vault file or content using the provided password.
-// It takes an options struct containing the password and either a vault file path or vault content.
-// It returns an error if the initialization fails.
+// LoadVault loads environment variables from an encrypted vault file or from vault content using the provided password.
+//
+// Parameters:
+//
+//	Password: The password to use for decrypting the vault file or vault content.
+//	VaultFilePath: The path to the vault file to load.
+//	VaultContent: The content of the vault to load.
+//
+// Returns:
+//
+//	An error if loading fails.
 func LoadVault(options struct {
 	Password      string
 	VaultFilePath string

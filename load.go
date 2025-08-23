@@ -6,7 +6,17 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// Initialize initializes the environment variables
+// Load loads environment variables from .env files.
+//
+// If no paths are provided, it will try to load the default .env file.
+//
+// Parameters:
+//
+//	...envFilePath: The paths to the .env files to load.
+//
+// Returns:
+//
+//	None.
 func Load(envFilePath ...string) {
 	paths := []string{".env"}
 

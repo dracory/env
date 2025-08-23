@@ -132,7 +132,7 @@ Env vault loading allows you to load environment variables from an encrypted vau
 
 ```go
 // Load environment variables from an encrypted vault file
-er := env.LoadVault(struct {
+err := env.LoadVault(struct {
     Password      string
     VaultFilePath string
     VaultContent  string
@@ -286,121 +286,6 @@ err := env.LoadVault(struct {
 if err != nil {
     // handle error
 }
-```
-
-### Notes on Load
-`Load()` will attempt to load from a default `.env` file, and then from any additional file paths you pass in. Missing files are silently skipped.
-
-
-## Features
-
-- Load environment variables from `.env` files (`Initialize`)
-- Process values with `base64:` and `obfuscated:` prefixes automatically
-- Simple and intuitive API
-- Boolean helpers with sane defaults
-- Optional encrypted vault loading (`VaultLoad`)
-
-## API Reference
-
-### Functions
-
-- `Initialize(envFilePath ...string)` – Load environment variables from `.env` files. Defaults to `.env` and also attempts any additional paths provided.
-- `Value(key string) string` – Get an environment variable. Returns empty string if not set. Automatically processes `base64:` and `obfuscated:` prefixes.
-- `Must(key string) string` – Get a required environment variable. Panics if the variable is not set. Also processes prefixes.
-- `Bool(key string) bool` – Get a boolean environment variable. Returns `false` if not set or invalid.
-- `BoolDefault(key string, defaultValue bool) bool` – Get a boolean environment variable with a default value.
-
-### Advanced Functions
-
-- `VaultLoad(options struct{ Password string; VaultFilePath string; VaultContent string }) error` – Load environment variables from an encrypted vault file or a vault string. Exactly one of `VaultFilePath` or `VaultContent` must be provided along with a `Password`.
-
-## Installation
-
-```bash
-go get github.com/dracory/env
-```
-
-## Usage
-
-### Working with .env Files
-
-Create a `.env` file in your project root:
-
-```env
-DB_HOST="localhost"
-DB_PORT="5432"
-SECRET_KEY="your-secret-key"
-```
-
-### Basic Usage
-
-```go
-package main
-
-import (
-	"fmt"
-	"github.com/dracory/env"
-)
-
-func main() {
-	// Initialize environment variables from .env files
-	env.Initialize(".env")
-	
-	// Get an environment variable (empty string if not set). Add your own default fallback if needed.
-	dbHost := env.Value("DB_HOST")
-	if dbHost == "" {
-		dbHost = "localhost"
-	}
-	
-	// Get required environment variable (panics if not set)
-	dbPort := env.Must("DB_PORT")
-	
-	fmt.Printf("Database: %s:%s\n", dbHost, dbPort)
-}
-```
-
-### Value Processing
-`Value` and `Must` automatically process these prefixes:
-
-- `base64:<encoded>` – Decodes using URL-safe base64.
-- `obfuscated:<text>` – Deobfuscates using `github.com/gouniverse/envenc`.
-
-This lets you safely store encoded/obfuscated values in `.env` or other sources while retrieving plain values at runtime.
-
-### Boolean Helpers
-`Bool` and `BoolDefault` read booleans with flexible parsing:
-
-- True values: `"true"`, `"True"`, `"TRUE"`, `"T"`, `"t"`, `"1"`, `"yes"`, `"Yes"`, `"YES"`
-- False values: `"false"`, `"False"`, `"FALSE"`, `"F"`, `"f"`, `"0"`, `"no"`, `"No"`, `"NO"`
-- Any other or empty value returns the provided default (or `false` for `Bool`).
-
-### Advanced. Env Vault Loading
-Env vault loading allows you to load environment variables from an encrypted vault file or a string.
-
-```go
-// Load environment variables from an encrypted vault file
-err := env.VaultLoad(struct {
-    Password      string
-    VaultFilePath string
-    VaultContent  string
-}{
-    Password:      "your-password",
-    VaultFilePath: ".env.vault",
-})
-if err != nil {
-    // handle error
-}
-```
-
-### Notes on Initialize
-`Initialize()` will attempt to load from a default `.env` file, and then from any additional file paths you pass in. Missing files are silently skipped.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-
 This project is dual-licensed under the following terms:
 
 - For non-commercial use, you may choose either the GNU Affero General Public License v3.0 (AGPLv3) or a separate commercial license (see below). You can find a copy of the AGPLv3 at: https://www.gnu.org/licenses/agpl-3.0.txt
