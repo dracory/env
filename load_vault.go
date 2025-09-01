@@ -4,7 +4,7 @@ import (
 	"errors"
 	"os"
 
-	"github.com/gouniverse/envenc"
+	"github.com/dracory/envenc"
 )
 
 // LoadVault loads environment variables from an encrypted vault file or from vault content using the provided password.

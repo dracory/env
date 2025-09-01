@@ -1,21 +1,21 @@
 module github.com/dracory/env
 
-go 1.24.0
+go 1.24.5
 
 require (
-	github.com/gouniverse/envenc v0.10.0
+	github.com/dracory/envenc v0.11.0
 	github.com/joho/godotenv v1.5.1
 )
 
 require (
+	github.com/dracory/api v1.7.0 // indirect
+	github.com/dracory/cdn v1.8.0 // indirect
+	github.com/dracory/dataobject v1.5.0 // indirect
+	github.com/dracory/uid v1.7.0 // indirect
+	github.com/dracory/websrv v0.1.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/gouniverse/api v1.6.0 // indirect
-	github.com/gouniverse/cdn v1.6.0 // indirect
 	github.com/gouniverse/crypto v0.2.0 // indirect
-	github.com/gouniverse/dataobject v1.2.0 // indirect
 	github.com/gouniverse/hb v1.83.4 // indirect
-	github.com/gouniverse/uid v1.5.0 // indirect
-	github.com/gouniverse/webserver v0.1.0 // indirect
 	github.com/logrusorgru/aurora v2.0.3+incompatible // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect

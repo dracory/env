@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"strings"
 
-	"github.com/gouniverse/envenc"
+	"github.com/dracory/envenc"
 )
 
 func envProcess(value string) string {

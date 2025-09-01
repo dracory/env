@@ -116,7 +116,7 @@ func main() {
 `GetString`, `GetStringOrDefault`, `GetStringOrError`, and `GetStringOrPanic` automatically process these prefixes:
 
 - `base64:<encoded>` – Decodes using URL-safe base64.
-- `obfuscated:<text>` – Deobfuscates using `github.com/gouniverse/envenc`.
+- `obfuscated:<text>` – Deobfuscates using `github.com/dracory/envenc`.
 
 This lets you safely store encoded/obfuscated values in `.env` or other sources while retrieving plain values at runtime.
 

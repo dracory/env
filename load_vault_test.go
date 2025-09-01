@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/gouniverse/envenc"
+	"github.com/dracory/envenc"
 )
 
 func TestLoadVault(t *testing.T) {
