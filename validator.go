@@ -16,11 +16,20 @@ func (v *Validator) Add(err error) {
 	}
 }
 
-// MustString retrieves the required string value for key, recording any error.
-func (v *Validator) MustString(key, context string) string {
-	value, err := RequireString(key, context)
-	v.Add(err)
+// GetStringOrError retrieves the required string value for key.
+// Records a MissingEnvError if the value is absent.
+func (v *Validator) GetStringOrError(key, context string) string {
+	value := strings.TrimSpace(GetString(key))
+	if value == "" {
+		v.Add(MissingEnvError{Key: key, Context: context})
+		return ""
+	}
 	return value
+}
+
+// GetStringOrDefault retrieves a string value for key, returning defaultValue if not set.
+func (v *Validator) GetStringOrDefault(key, defaultValue string) string {
+	return GetStringOrDefault(key, defaultValue)
 }
 
 // GetString retrieves an optional string value for key (no validation).
@@ -28,14 +37,74 @@ func (v *Validator) GetString(key string) string {
 	return GetString(key)
 }
 
+// GetBoolOrError retrieves the required bool value for key.
+// Records a MissingEnvError if the value is absent.
+func (v *Validator) GetBoolOrError(key, context string) bool {
+	value, err := GetBoolOrError(key)
+	if err != nil {
+		v.Add(MissingEnvError{Key: key, Context: context})
+		return false
+	}
+	return value
+}
+
+// GetBoolOrDefault retrieves a bool value for key, returning defaultValue if not set.
+func (v *Validator) GetBoolOrDefault(key string, defaultValue bool) bool {
+	return GetBoolOrDefault(key, defaultValue)
+}
+
 // GetBool retrieves an optional bool value for key (no validation).
 func (v *Validator) GetBool(key string) bool {
 	return GetBool(key)
 }
 
-// MustWhen validates that value is present when condition is true, recording any error.
-func (v *Validator) MustWhen(condition bool, key, context, value string) {
-	v.Add(RequireWhen(condition, key, context, value))
+// GetInt retrieves an optional int value for key (no validation).
+func (v *Validator) GetInt(key string) int {
+	return GetInt(key)
+}
+
+// GetIntOrError retrieves the required int value for key.
+// Records a MissingEnvError if the value is absent or unparseable.
+func (v *Validator) GetIntOrError(key, context string) int {
+	value, err := GetIntOrError(key)
+	if err != nil {
+		v.Add(MissingEnvError{Key: key, Context: context})
+		return 0
+	}
+	return value
+}
+
+// GetIntOrDefault retrieves an int value for key, returning defaultValue if not set.
+func (v *Validator) GetIntOrDefault(key string, defaultValue int) int {
+	return GetIntOrDefault(key, defaultValue)
+}
+
+// GetFloat64 retrieves an optional float64 value for key (no validation).
+func (v *Validator) GetFloat64(key string) float64 {
+	return GetFloat64(key)
+}
+
+// GetFloat64OrError retrieves the required float64 value for key.
+// Records a MissingEnvError if the value is absent or unparseable.
+func (v *Validator) GetFloat64OrError(key, context string) float64 {
+	value, err := GetFloat64OrError(key)
+	if err != nil {
+		v.Add(MissingEnvError{Key: key, Context: context})
+		return 0
+	}
+	return value
+}
+
+// GetFloat64OrDefault retrieves a float64 value for key, returning defaultValue if not set.
+func (v *Validator) GetFloat64OrDefault(key string, defaultValue float64) float64 {
+	return GetFloat64OrDefault(key, defaultValue)
+}
+
+// RequireWhen validates that value is present when condition is true, recording any error.
+func (v *Validator) RequireWhen(condition bool, key, context, value string) {
+	if condition && strings.TrimSpace(value) == "" {
+		v.Add(MissingEnvError{Key: key, Context: context})
+	}
 }
 
 // Err returns a ValidationError wrapping all collected issues, or nil if none.
