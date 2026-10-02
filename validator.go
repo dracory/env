@@ -100,6 +100,27 @@ func (v *Validator) GetFloat64OrDefault(key string, defaultValue float64) float6
 	return GetFloat64OrDefault(key, defaultValue)
 }
 
+// GetArray retrieves an optional slice of strings for key (no validation).
+func (v *Validator) GetArray(key string, separators ...string) []string {
+	return GetArray(key, separators...)
+}
+
+// GetArrayOrError retrieves the required slice of strings for key.
+// Records a MissingEnvError if the value is absent.
+func (v *Validator) GetArrayOrError(key, context string, separators ...string) []string {
+	value, err := GetArrayOrError(key, separators...)
+	if err != nil {
+		v.Add(MissingEnvError{Key: key, Context: context})
+		return nil
+	}
+	return value
+}
+
+// GetArrayOrDefault retrieves a slice of strings for key, returning defaultValue if not set.
+func (v *Validator) GetArrayOrDefault(key string, defaultValue []string, separators ...string) []string {
+	return GetArrayOrDefault(key, defaultValue, separators...)
+}
+
 // RequireWhen validates that value is present when condition is true, recording any error.
 func (v *Validator) RequireWhen(condition bool, key, context, value string) {
 	if condition && strings.TrimSpace(value) == "" {

@@ -10,8 +10,8 @@ A Go module for managing environment variables with support for .env loading, va
 
 - Load environment variables from `.env` files (`Load`)
 - Process values with `base64:` and `obfuscated:` prefixes automatically
-- Simple and intuitive API for `string`, `bool`, `int`, and `float64` types.
-- Each data type (`String`, `Bool`, `Int`, `Float`) provides four functions for flexible error handling:
+- Simple and intuitive API for `string`, `bool`, `int`, `float64`, and `array` types.
+- Each data type (`String`, `Bool`, `Int`, `Float`, `Array`, `JSONArray`) provides four functions for flexible error handling:
     - `Get...`: Returns the value or a zero-value (`"", false, 0`) if not found.
     - `Get...OrDefault`: Returns a specified default value if not found.
     - `Get...OrError`: Returns an error if not found or invalid.
@@ -55,6 +55,23 @@ A Go module for managing environment variables with support for .env loading, va
 - `GetFloatOrPanic(key string) float64`
 
 Compatibility: `GetFloat64`, `GetFloat64OrDefault`, `GetFloat64OrError`, and `GetFloat64OrPanic` are available as aliases.
+
+### Array Functions
+
+- `GetArray(key string, separators ...string) []string`
+- `GetArrayOrDefault(key string, defaultValue []string, separators ...string) []string`
+- `GetArrayOrError(key string, separators ...string) ([]string, error)`
+- `GetArrayOrPanic(key string, separators ...string) []string`
+
+By default, `GetArray` splits values by `,` and `;`, trims whitespace around items, and ignores empty items. Custom separators can be provided as optional arguments (e.g. `GetArray("LOGIN_METHODS", "|")`). If the environment variable value is formatted as a JSON array (starts with `[` and ends with `]`), `GetArray` will automatically parse it as JSON.
+
+### JSON Array Functions
+
+For explicit JSON array parsing:
+- `GetJSONArray(key string) []string`
+- `GetJSONArrayOrDefault(key string, defaultValue []string) []string`
+- `GetJSONArrayOrError(key string) ([]string, error)`
+- `GetJSONArrayOrPanic(key string) []string`
 
 ## Installation
 
