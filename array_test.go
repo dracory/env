@@ -430,3 +430,123 @@ func TestValidator_ArrayMappedAndCaseMethods(t *testing.T) {
 		t.Errorf("Validator.GetArrayUpperOrDefault() = %v, want %v", got, def)
 	}
 }
+
+func TestGetJSONArrayMappedLowerUpper(t *testing.T) {
+	os.Setenv("TEST_JSON_MAP", `["Alpha", "Beta"]`)
+	defer os.Unsetenv("TEST_JSON_MAP")
+
+	// GetJSONArrayMapped
+	gotMap := GetJSONArrayMapped("TEST_JSON_MAP", func(s string) string { return s + "!" })
+	if !reflect.DeepEqual(gotMap, []string{"Alpha!", "Beta!"}) {
+		t.Errorf("GetJSONArrayMapped() = %v, want [Alpha! Beta!]", gotMap)
+	}
+
+	// GetJSONArrayLower
+	gotLower := GetJSONArrayLower("TEST_JSON_MAP")
+	if !reflect.DeepEqual(gotLower, []string{"alpha", "beta"}) {
+		t.Errorf("GetJSONArrayLower() = %v, want [alpha beta]", gotLower)
+	}
+
+	// GetJSONArrayUpper
+	gotUpper := GetJSONArrayUpper("TEST_JSON_MAP")
+	if !reflect.DeepEqual(gotUpper, []string{"ALPHA", "BETA"}) {
+		t.Errorf("GetJSONArrayUpper() = %v, want [ALPHA BETA]", gotUpper)
+	}
+
+	// Invalid JSON / Missing key returns nil / default / error / panic
+	def := []string{"default"}
+	if got := GetJSONArrayMapped("NON_EXISTENT_JSON", nil); got != nil {
+		t.Errorf("GetJSONArrayMapped(missing) = %v, want nil", got)
+	}
+	if got := GetJSONArrayMappedOrDefault("NON_EXISTENT_JSON", def, nil); !reflect.DeepEqual(got, def) {
+		t.Errorf("GetJSONArrayMappedOrDefault(missing) = %v, want %v", got, def)
+	}
+	if _, err := GetJSONArrayMappedOrError("NON_EXISTENT_JSON", nil); err == nil {
+		t.Error("GetJSONArrayMappedOrError(missing) expected error, got nil")
+	}
+
+	if got := GetJSONArrayLowerOrDefault("NON_EXISTENT_JSON", def); !reflect.DeepEqual(got, def) {
+		t.Errorf("GetJSONArrayLowerOrDefault(missing) = %v, want %v", got, def)
+	}
+	if _, err := GetJSONArrayLowerOrError("NON_EXISTENT_JSON"); err == nil {
+		t.Error("GetJSONArrayLowerOrError(missing) expected error, got nil")
+	}
+
+	if got := GetJSONArrayUpperOrDefault("NON_EXISTENT_JSON", def); !reflect.DeepEqual(got, def) {
+		t.Errorf("GetJSONArrayUpperOrDefault(missing) = %v, want %v", got, def)
+	}
+	if _, err := GetJSONArrayUpperOrError("NON_EXISTENT_JSON"); err == nil {
+		t.Error("GetJSONArrayUpperOrError(missing) expected error, got nil")
+	}
+
+	// Panics
+	func() {
+		defer func() {
+			if r := recover(); r == nil {
+				t.Error("GetJSONArrayMappedOrPanic expected panic, got none")
+			}
+		}()
+		GetJSONArrayMappedOrPanic("NON_EXISTENT_JSON", nil)
+	}()
+
+	func() {
+		defer func() {
+			if r := recover(); r == nil {
+				t.Error("GetJSONArrayLowerOrPanic expected panic, got none")
+			}
+		}()
+		GetJSONArrayLowerOrPanic("NON_EXISTENT_JSON")
+	}()
+
+	func() {
+		defer func() {
+			if r := recover(); r == nil {
+				t.Error("GetJSONArrayUpperOrPanic expected panic, got none")
+			}
+		}()
+		GetJSONArrayUpperOrPanic("NON_EXISTENT_JSON")
+	}()
+}
+
+func TestValidator_JSONArrayMappedAndCaseMethods(t *testing.T) {
+	v := &Validator{}
+
+	os.Setenv("V_JSON_MAP", `["Foo", "Bar"]`)
+	defer os.Unsetenv("V_JSON_MAP")
+
+	gotMapped := v.GetJSONArrayMapped("V_JSON_MAP", func(s string) string { return s + "2" })
+	if !reflect.DeepEqual(gotMapped, []string{"Foo2", "Bar2"}) {
+		t.Errorf("Validator.GetJSONArrayMapped() = %v, want [Foo2 Bar2]", gotMapped)
+	}
+
+	gotLower := v.GetJSONArrayLower("V_JSON_MAP")
+	if !reflect.DeepEqual(gotLower, []string{"foo", "bar"}) {
+		t.Errorf("Validator.GetJSONArrayLower() = %v, want [foo bar]", gotLower)
+	}
+
+	gotUpper := v.GetJSONArrayUpper("V_JSON_MAP")
+	if !reflect.DeepEqual(gotUpper, []string{"FOO", "BAR"}) {
+		t.Errorf("Validator.GetJSONArrayUpper() = %v, want [FOO BAR]", gotUpper)
+	}
+
+	// OrError methods
+	v.GetJSONArrayMappedOrError("NON_EXISTENT", "ctx1", nil)
+	v.GetJSONArrayLowerOrError("NON_EXISTENT", "ctx2")
+	v.GetJSONArrayUpperOrError("NON_EXISTENT", "ctx3")
+
+	if v.Err() == nil {
+		t.Error("expected validator errors, got nil")
+	}
+
+	// OrDefault methods
+	def := []string{"def"}
+	if got := v.GetJSONArrayMappedOrDefault("NON_EXISTENT", def, nil); !reflect.DeepEqual(got, def) {
+		t.Errorf("Validator.GetJSONArrayMappedOrDefault() = %v, want %v", got, def)
+	}
+	if got := v.GetJSONArrayLowerOrDefault("NON_EXISTENT", def); !reflect.DeepEqual(got, def) {
+		t.Errorf("Validator.GetJSONArrayLowerOrDefault() = %v, want %v", got, def)
+	}
+	if got := v.GetJSONArrayUpperOrDefault("NON_EXISTENT", def); !reflect.DeepEqual(got, def) {
+		t.Errorf("Validator.GetJSONArrayUpperOrDefault() = %v, want %v", got, def)
+	}
+}

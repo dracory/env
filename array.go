@@ -18,6 +18,89 @@ func GetArray(key string, separators ...string) []string {
 	return value
 }
 
+// GetJSONArrayMapped retrieves a slice of strings from a JSON array environment variable and applies mapper to each element.
+func GetJSONArrayMapped(key string, mapper func(string) string) []string {
+	value, err := GetJSONArrayMappedOrError(key, mapper)
+	if err != nil {
+		return nil
+	}
+	return value
+}
+
+// GetJSONArrayMappedOrDefault retrieves a mapped slice of strings from a JSON array with a default fallback.
+func GetJSONArrayMappedOrDefault(key string, defaultValue []string, mapper func(string) string) []string {
+	value, err := GetJSONArrayMappedOrError(key, mapper)
+	if err != nil {
+		return defaultValue
+	}
+	return value
+}
+
+// GetJSONArrayMappedOrError retrieves a slice of strings from a JSON array and applies mapper to each element, returning an error if parsing fails or key is not set.
+func GetJSONArrayMappedOrError(key string, mapper func(string) string) ([]string, error) {
+	elems, err := GetJSONArrayOrError(key)
+	if err != nil {
+		return nil, err
+	}
+	if mapper == nil {
+		return elems, nil
+	}
+	res := make([]string, len(elems))
+	for i, e := range elems {
+		res[i] = mapper(e)
+	}
+	return res, nil
+}
+
+// GetJSONArrayMappedOrPanic retrieves a mapped slice of strings from a JSON array, panicking if not set or invalid JSON.
+func GetJSONArrayMappedOrPanic(key string, mapper func(string) string) []string {
+	value, err := GetJSONArrayMappedOrError(key, mapper)
+	if err != nil {
+		panic(err)
+	}
+	return value
+}
+
+// GetJSONArrayLower retrieves a slice of strings from a JSON array converted to lower case.
+func GetJSONArrayLower(key string) []string {
+	return GetJSONArrayMapped(key, strings.ToLower)
+}
+
+// GetJSONArrayLowerOrDefault retrieves a lowercased slice of strings from a JSON array with a default fallback.
+func GetJSONArrayLowerOrDefault(key string, defaultValue []string) []string {
+	return GetJSONArrayMappedOrDefault(key, defaultValue, strings.ToLower)
+}
+
+// GetJSONArrayLowerOrError retrieves a lowercased slice of strings from a JSON array, returning an error if invalid/missing.
+func GetJSONArrayLowerOrError(key string) ([]string, error) {
+	return GetJSONArrayMappedOrError(key, strings.ToLower)
+}
+
+// GetJSONArrayLowerOrPanic retrieves a lowercased slice of strings from a JSON array, panicking if invalid/missing.
+func GetJSONArrayLowerOrPanic(key string) []string {
+	return GetJSONArrayMappedOrPanic(key, strings.ToLower)
+}
+
+// GetJSONArrayUpper retrieves a slice of strings from a JSON array converted to upper case.
+func GetJSONArrayUpper(key string) []string {
+	return GetJSONArrayMapped(key, strings.ToUpper)
+}
+
+// GetJSONArrayUpperOrDefault retrieves an uppercased slice of strings from a JSON array with a default fallback.
+func GetJSONArrayUpperOrDefault(key string, defaultValue []string) []string {
+	return GetJSONArrayMappedOrDefault(key, defaultValue, strings.ToUpper)
+}
+
+// GetJSONArrayUpperOrError retrieves an uppercased slice of strings from a JSON array, returning an error if invalid/missing.
+func GetJSONArrayUpperOrError(key string) ([]string, error) {
+	return GetJSONArrayMappedOrError(key, strings.ToUpper)
+}
+
+// GetJSONArrayUpperOrPanic retrieves an uppercased slice of strings from a JSON array, panicking if invalid/missing.
+func GetJSONArrayUpperOrPanic(key string) []string {
+	return GetJSONArrayMappedOrPanic(key, strings.ToUpper)
+}
+
 // GetArrayMapped applies custom mapper transformation to each element.
 // It returns nil if the key is not found or if the value cannot be retrieved.
 func GetArrayMapped(key string, mapper func(string) string, separators ...string) []string {

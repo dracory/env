@@ -184,6 +184,69 @@ func (v *Validator) GetArrayUpperOrDefault(key string, defaultValue []string, se
 	return GetArrayUpperOrDefault(key, defaultValue, separators...)
 }
 
+// GetJSONArrayMapped retrieves an optional mapped slice of strings from a JSON array for key (no validation).
+func (v *Validator) GetJSONArrayMapped(key string, mapper func(string) string) []string {
+	return GetJSONArrayMapped(key, mapper)
+}
+
+// GetJSONArrayMappedOrError retrieves the required mapped slice of strings from a JSON array for key.
+// Records a MissingEnvError if absent or invalid.
+func (v *Validator) GetJSONArrayMappedOrError(key, context string, mapper func(string) string) []string {
+	value, err := GetJSONArrayMappedOrError(key, mapper)
+	if err != nil {
+		v.Add(MissingEnvError{Key: key, Context: context})
+		return nil
+	}
+	return value
+}
+
+// GetJSONArrayMappedOrDefault retrieves a mapped slice of strings from a JSON array for key, returning defaultValue if not set/invalid.
+func (v *Validator) GetJSONArrayMappedOrDefault(key string, defaultValue []string, mapper func(string) string) []string {
+	return GetJSONArrayMappedOrDefault(key, defaultValue, mapper)
+}
+
+// GetJSONArrayLower retrieves an optional lowercased slice of strings from a JSON array for key (no validation).
+func (v *Validator) GetJSONArrayLower(key string) []string {
+	return GetJSONArrayLower(key)
+}
+
+// GetJSONArrayLowerOrError retrieves the required lowercased slice of strings from a JSON array for key.
+// Records a MissingEnvError if absent or invalid.
+func (v *Validator) GetJSONArrayLowerOrError(key, context string) []string {
+	value, err := GetJSONArrayLowerOrError(key)
+	if err != nil {
+		v.Add(MissingEnvError{Key: key, Context: context})
+		return nil
+	}
+	return value
+}
+
+// GetJSONArrayLowerOrDefault retrieves a lowercased slice of strings from a JSON array for key, returning defaultValue if not set/invalid.
+func (v *Validator) GetJSONArrayLowerOrDefault(key string, defaultValue []string) []string {
+	return GetJSONArrayLowerOrDefault(key, defaultValue)
+}
+
+// GetJSONArrayUpper retrieves an optional uppercased slice of strings from a JSON array for key (no validation).
+func (v *Validator) GetJSONArrayUpper(key string) []string {
+	return GetJSONArrayUpper(key)
+}
+
+// GetJSONArrayUpperOrError retrieves the required uppercased slice of strings from a JSON array for key.
+// Records a MissingEnvError if absent or invalid.
+func (v *Validator) GetJSONArrayUpperOrError(key, context string) []string {
+	value, err := GetJSONArrayUpperOrError(key)
+	if err != nil {
+		v.Add(MissingEnvError{Key: key, Context: context})
+		return nil
+	}
+	return value
+}
+
+// GetJSONArrayUpperOrDefault retrieves an uppercased slice of strings from a JSON array for key, returning defaultValue if not set/invalid.
+func (v *Validator) GetJSONArrayUpperOrDefault(key string, defaultValue []string) []string {
+	return GetJSONArrayUpperOrDefault(key, defaultValue)
+}
+
 // RequireWhen validates that value is present when condition is true, recording any error.
 func (v *Validator) RequireWhen(condition bool, key, context, value string) {
 	if condition && strings.TrimSpace(value) == "" {

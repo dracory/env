@@ -94,6 +94,22 @@ For explicit JSON array parsing:
 - `GetJSONArrayOrError(key string) ([]string, error)`
 - `GetJSONArrayOrPanic(key string) []string`
 
+Explicit JSON array transformation and case normalization:
+- `GetJSONArrayMapped(key string, mapper func(string) string) []string`
+- `GetJSONArrayMappedOrDefault(key string, defaultValue []string, mapper func(string) string) []string`
+- `GetJSONArrayMappedOrError(key string, mapper func(string) string) ([]string, error)`
+- `GetJSONArrayMappedOrPanic(key string, mapper func(string) string) []string`
+
+- `GetJSONArrayLower(key string) []string`
+- `GetJSONArrayLowerOrDefault(key string, defaultValue []string) []string`
+- `GetJSONArrayLowerOrError(key string) ([]string, error)`
+- `GetJSONArrayLowerOrPanic(key string) []string`
+
+- `GetJSONArrayUpper(key string) []string`
+- `GetJSONArrayUpperOrDefault(key string, defaultValue []string) []string`
+- `GetJSONArrayUpperOrError(key string) ([]string, error)`
+- `GetJSONArrayUpperOrPanic(key string) []string`
+
 ## Installation
 
 ```bash
