@@ -65,6 +65,27 @@ Compatibility: `GetFloat64`, `GetFloat64OrDefault`, `GetFloat64OrError`, and `Ge
 
 By default, `GetArray` splits values by `,` and `;`, trims whitespace around items, and ignores empty items. Custom separators can be provided as optional arguments (e.g. `GetArray("LOGIN_METHODS", "|")`). If the environment variable value is formatted as a JSON array (starts with `[` and ends with `]`), `GetArray` will automatically parse it as JSON.
 
+### Array Transformation & Case Normalization Functions
+
+Transform array elements or normalize casing directly when fetching array environment variables:
+
+- `GetArrayMapped(key string, mapper func(string) string, separators ...string) []string`
+- `GetArrayMappedOrDefault(key string, defaultValue []string, mapper func(string) string, separators ...string) []string`
+- `GetArrayMappedOrError(key string, mapper func(string) string, separators ...string) ([]string, error)`
+- `GetArrayMappedOrPanic(key string, mapper func(string) string, separators ...string) []string`
+
+Convenience lowercasing and uppercasing functions:
+
+- `GetArrayLower(key string, separators ...string) []string`
+- `GetArrayLowerOrDefault(key string, defaultValue []string, separators ...string) []string`
+- `GetArrayLowerOrError(key string, separators ...string) ([]string, error)`
+- `GetArrayLowerOrPanic(key string, separators ...string) []string`
+
+- `GetArrayUpper(key string, separators ...string) []string`
+- `GetArrayUpperOrDefault(key string, defaultValue []string, separators ...string) []string`
+- `GetArrayUpperOrError(key string, separators ...string) ([]string, error)`
+- `GetArrayUpperOrPanic(key string, separators ...string) []string`
+
 ### JSON Array Functions
 
 For explicit JSON array parsing:

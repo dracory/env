@@ -257,3 +257,176 @@ func TestValidator_ArrayMethods(t *testing.T) {
 		t.Errorf("Validator.GetArrayOrDefault() = %v, want [default]", gotDef)
 	}
 }
+
+func TestGetArrayMapped(t *testing.T) {
+	os.Setenv("TEST_TRANSFORM", "  Password, WebAuthn, OAUTH ")
+	defer os.Unsetenv("TEST_TRANSFORM")
+
+	// Custom mapper
+	clean := GetArrayMapped("TEST_TRANSFORM", func(s string) string {
+		return "role_" + s
+	})
+	want := []string{"role_Password", "role_WebAuthn", "role_OAUTH"}
+	if !reflect.DeepEqual(clean, want) {
+		t.Errorf("GetArrayMapped() = %v, want %v", clean, want)
+	}
+
+	// Nil mapper
+	raw := GetArrayMapped("TEST_TRANSFORM", nil)
+	wantRaw := []string{"Password", "WebAuthn", "OAUTH"}
+	if !reflect.DeepEqual(raw, wantRaw) {
+		t.Errorf("GetArrayMapped(nil) = %v, want %v", raw, wantRaw)
+	}
+
+	// Missing key
+	if got := GetArrayMapped("NON_EXISTENT_MAP", func(s string) string { return s }); got != nil {
+		t.Errorf("GetArrayMapped(missing) = %v, want nil", got)
+	}
+}
+
+func TestGetArrayMappedOrDefaultAndOrErrorAndPanic(t *testing.T) {
+	def := []string{"default"}
+
+	// Default
+	gotDef := GetArrayMappedOrDefault("NON_EXISTENT", def, nil)
+	if !reflect.DeepEqual(gotDef, def) {
+		t.Errorf("GetArrayMappedOrDefault(missing) = %v, want %v", gotDef, def)
+	}
+
+	os.Setenv("TEST_MAP_DEF", "a,b")
+	defer os.Unsetenv("TEST_MAP_DEF")
+	gotDefPresent := GetArrayMappedOrDefault("TEST_MAP_DEF", def, func(s string) string { return s + "!" })
+	if !reflect.DeepEqual(gotDefPresent, []string{"a!", "b!"}) {
+		t.Errorf("GetArrayMappedOrDefault(present) = %v, want [a! b!]", gotDefPresent)
+	}
+
+	// Error
+	_, err := GetArrayMappedOrError("NON_EXISTENT", nil)
+	if err == nil {
+		t.Error("GetArrayMappedOrError(missing) expected error, got nil")
+	}
+
+	// Panic
+	defer func() {
+		if r := recover(); r == nil {
+			t.Error("GetArrayMappedOrPanic(missing) expected panic, got none")
+		}
+	}()
+	GetArrayMappedOrPanic("NON_EXISTENT", nil)
+}
+
+func TestGetArrayLower(t *testing.T) {
+	os.Setenv("TEST_LOWER", "Password, WebAuthn, OAUTH")
+	defer os.Unsetenv("TEST_LOWER")
+
+	got := GetArrayLower("TEST_LOWER")
+	want := []string{"password", "webauthn", "oauth"}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("GetArrayLower() = %v, want %v", got, want)
+	}
+
+	// JSON array
+	os.Setenv("TEST_LOWER_JSON", `["Foo", "BAR"]`)
+	defer os.Unsetenv("TEST_LOWER_JSON")
+	gotJSON := GetArrayLower("TEST_LOWER_JSON")
+	wantJSON := []string{"foo", "bar"}
+	if !reflect.DeepEqual(gotJSON, wantJSON) {
+		t.Errorf("GetArrayLower(JSON) = %v, want %v", gotJSON, wantJSON)
+	}
+
+	// Default
+	def := []string{"def"}
+	gotDef := GetArrayLowerOrDefault("NON_EXISTENT", def)
+	if !reflect.DeepEqual(gotDef, def) {
+		t.Errorf("GetArrayLowerOrDefault() = %v, want %v", gotDef, def)
+	}
+
+	// Error
+	_, err := GetArrayLowerOrError("NON_EXISTENT")
+	if err == nil {
+		t.Error("GetArrayLowerOrError(missing) expected error, got nil")
+	}
+
+	// Panic
+	defer func() {
+		if r := recover(); r == nil {
+			t.Error("GetArrayLowerOrPanic(missing) expected panic, got none")
+		}
+	}()
+	GetArrayLowerOrPanic("NON_EXISTENT")
+}
+
+func TestGetArrayUpper(t *testing.T) {
+	os.Setenv("TEST_UPPER", "Password, WebAuthn, oauth")
+	defer os.Unsetenv("TEST_UPPER")
+
+	got := GetArrayUpper("TEST_UPPER")
+	want := []string{"PASSWORD", "WEBAUTHN", "OAUTH"}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("GetArrayUpper() = %v, want %v", got, want)
+	}
+
+	// Default
+	def := []string{"DEF"}
+	gotDef := GetArrayUpperOrDefault("NON_EXISTENT", def)
+	if !reflect.DeepEqual(gotDef, def) {
+		t.Errorf("GetArrayUpperOrDefault() = %v, want %v", gotDef, def)
+	}
+
+	// Error
+	_, err := GetArrayUpperOrError("NON_EXISTENT")
+	if err == nil {
+		t.Error("GetArrayUpperOrError(missing) expected error, got nil")
+	}
+
+	// Panic
+	defer func() {
+		if r := recover(); r == nil {
+			t.Error("GetArrayUpperOrPanic(missing) expected panic, got none")
+		}
+	}()
+	GetArrayUpperOrPanic("NON_EXISTENT")
+}
+
+func TestValidator_ArrayMappedAndCaseMethods(t *testing.T) {
+	v := &Validator{}
+
+	os.Setenv("V_MAP", "Foo, Bar")
+	defer os.Unsetenv("V_MAP")
+
+	gotMapped := v.GetArrayMapped("V_MAP", func(s string) string { return s + "1" })
+	if !reflect.DeepEqual(gotMapped, []string{"Foo1", "Bar1"}) {
+		t.Errorf("Validator.GetArrayMapped() = %v, want [Foo1 Bar1]", gotMapped)
+	}
+
+	gotLower := v.GetArrayLower("V_MAP")
+	if !reflect.DeepEqual(gotLower, []string{"foo", "bar"}) {
+		t.Errorf("Validator.GetArrayLower() = %v, want [foo bar]", gotLower)
+	}
+
+	gotUpper := v.GetArrayUpper("V_MAP")
+	if !reflect.DeepEqual(gotUpper, []string{"FOO", "BAR"}) {
+		t.Errorf("Validator.GetArrayUpper() = %v, want [FOO BAR]", gotUpper)
+	}
+
+	// OrError methods
+	v.GetArrayMappedOrError("NON_EXISTENT", "ctx1", nil)
+	v.GetArrayLowerOrError("NON_EXISTENT", "ctx2")
+	v.GetArrayUpperOrError("NON_EXISTENT", "ctx3")
+
+	if v.Err() == nil {
+		t.Error("expected validator errors, got nil")
+	}
+
+	// OrDefault methods
+	def := []string{"def"}
+	if got := v.GetArrayMappedOrDefault("NON_EXISTENT", def, nil); !reflect.DeepEqual(got, def) {
+		t.Errorf("Validator.GetArrayMappedOrDefault() = %v, want %v", got, def)
+	}
+	if got := v.GetArrayLowerOrDefault("NON_EXISTENT", def); !reflect.DeepEqual(got, def) {
+		t.Errorf("Validator.GetArrayLowerOrDefault() = %v, want %v", got, def)
+	}
+	if got := v.GetArrayUpperOrDefault("NON_EXISTENT", def); !reflect.DeepEqual(got, def) {
+		t.Errorf("Validator.GetArrayUpperOrDefault() = %v, want %v", got, def)
+	}
+}

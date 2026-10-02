@@ -121,6 +121,69 @@ func (v *Validator) GetArrayOrDefault(key string, defaultValue []string, separat
 	return GetArrayOrDefault(key, defaultValue, separators...)
 }
 
+// GetArrayMapped retrieves an optional mapped slice of strings for key (no validation).
+func (v *Validator) GetArrayMapped(key string, mapper func(string) string, separators ...string) []string {
+	return GetArrayMapped(key, mapper, separators...)
+}
+
+// GetArrayMappedOrError retrieves the required mapped slice of strings for key.
+// Records a MissingEnvError if the value is absent.
+func (v *Validator) GetArrayMappedOrError(key, context string, mapper func(string) string, separators ...string) []string {
+	value, err := GetArrayMappedOrError(key, mapper, separators...)
+	if err != nil {
+		v.Add(MissingEnvError{Key: key, Context: context})
+		return nil
+	}
+	return value
+}
+
+// GetArrayMappedOrDefault retrieves a mapped slice of strings for key, returning defaultValue if not set.
+func (v *Validator) GetArrayMappedOrDefault(key string, defaultValue []string, mapper func(string) string, separators ...string) []string {
+	return GetArrayMappedOrDefault(key, defaultValue, mapper, separators...)
+}
+
+// GetArrayLower retrieves an optional lowercased slice of strings for key (no validation).
+func (v *Validator) GetArrayLower(key string, separators ...string) []string {
+	return GetArrayLower(key, separators...)
+}
+
+// GetArrayLowerOrError retrieves the required lowercased slice of strings for key.
+// Records a MissingEnvError if the value is absent.
+func (v *Validator) GetArrayLowerOrError(key, context string, separators ...string) []string {
+	value, err := GetArrayLowerOrError(key, separators...)
+	if err != nil {
+		v.Add(MissingEnvError{Key: key, Context: context})
+		return nil
+	}
+	return value
+}
+
+// GetArrayLowerOrDefault retrieves a lowercased slice of strings for key, returning defaultValue if not set.
+func (v *Validator) GetArrayLowerOrDefault(key string, defaultValue []string, separators ...string) []string {
+	return GetArrayLowerOrDefault(key, defaultValue, separators...)
+}
+
+// GetArrayUpper retrieves an optional uppercased slice of strings for key (no validation).
+func (v *Validator) GetArrayUpper(key string, separators ...string) []string {
+	return GetArrayUpper(key, separators...)
+}
+
+// GetArrayUpperOrError retrieves the required uppercased slice of strings for key.
+// Records a MissingEnvError if the value is absent.
+func (v *Validator) GetArrayUpperOrError(key, context string, separators ...string) []string {
+	value, err := GetArrayUpperOrError(key, separators...)
+	if err != nil {
+		v.Add(MissingEnvError{Key: key, Context: context})
+		return nil
+	}
+	return value
+}
+
+// GetArrayUpperOrDefault retrieves an uppercased slice of strings for key, returning defaultValue if not set.
+func (v *Validator) GetArrayUpperOrDefault(key string, defaultValue []string, separators ...string) []string {
+	return GetArrayUpperOrDefault(key, defaultValue, separators...)
+}
+
 // RequireWhen validates that value is present when condition is true, recording any error.
 func (v *Validator) RequireWhen(condition bool, key, context, value string) {
 	if condition && strings.TrimSpace(value) == "" {
